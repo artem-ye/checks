@@ -16,7 +16,8 @@ interface GameState {
 		[COLOR.BLACK]: IPlayer;
 		[COLOR.WHITE]: IPlayer;
 	};
-	// firstMoveTorn: COLOR;
+	isPaused: boolean;
+	isStarted: boolean;
 }
 
 const initialState: GameState = {
@@ -25,7 +26,8 @@ const initialState: GameState = {
 		[COLOR.BLACK]: createPlayer('Black player'),
 		[COLOR.WHITE]: createPlayer('White player'),
 	},
-	// firstMoveTorn: COLOR.WHITE,
+	isPaused: true,
+	isStarted: false,
 };
 
 export const gameSlice = createSlice({
@@ -34,17 +36,21 @@ export const gameSlice = createSlice({
 	reducers: {
 		setNewGameRequest: (state) => {
 			state.isNewGameRequested = true;
+			state.isPaused = true;
 		},
 		clearNewGameRequest: (state) => {
 			state.isNewGameRequested = false;
+			state.isPaused = false;
 		},
-		resetGame: (state, action: PayloadAction<{ whitePlayerName: string; blackPlayerName: string }>) => {
+		startNewGame: (state, action: PayloadAction<{ whitePlayerName: string; blackPlayerName: string }>) => {
 			const { whitePlayerName, blackPlayerName } = action.payload;
 			state.players = {
 				[COLOR.BLACK]: createPlayer(blackPlayerName),
 				[COLOR.WHITE]: createPlayer(whitePlayerName),
 			};
-			// state.firstMoveTorn = COLOR.WHITE;
+			state.isStarted = true;
+			state.isPaused = false;
+			state.isNewGameRequested = false;
 		},
 	},
 });
@@ -59,14 +65,13 @@ export const hideNewGameRequest = () => (dispatch: AppDispatch) => {
 	dispatch(gameActions.clearNewGameRequest());
 };
 
-export const resetGame = (data: { whitePlayerName: string; blackPlayerName: string }) => (dispatch: AppDispatch) => {
-	dispatch(gameActions.clearNewGameRequest());
-
+export const startNewGame = (data: { whitePlayerName: string; blackPlayerName: string }) => (dispatch: AppDispatch) => {
 	const { whitePlayerName, blackPlayerName } = data;
-	dispatch(gameActions.resetGame({ whitePlayerName, blackPlayerName }));
+	dispatch(gameActions.startNewGame({ whitePlayerName, blackPlayerName }));
 };
 
 export const selectIsNewGameRequested = (state: RootState) => state.game.isNewGameRequested;
 export const selectPlayerInfo = (color: COLOR) => (state: RootState) => state.game.players[color];
+export const selectIsGamePlaying = (state: RootState) => state.game.isStarted && !state.game.isPaused;
 
 export default gameSlice.reducer;

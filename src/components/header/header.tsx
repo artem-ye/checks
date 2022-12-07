@@ -1,6 +1,8 @@
 import React from 'react';
+import { COLOR } from '../../models/colors';
 import { resetBoard } from '../../store/board/board';
-import { hideNewGameRequest, showNewGameRequest, selectIsNewGameRequested, resetGame } from '../../store/game/game';
+import { selectPlayerInfo } from '../../store/game/game';
+import { hideNewGameRequest, showNewGameRequest, selectIsNewGameRequested, startNewGame } from '../../store/game/game';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import Button from '../common/button/Button';
 import NewGameDialog, { INewGameDialogData } from '../newGameDialog';
@@ -8,6 +10,11 @@ import NewGameDialog, { INewGameDialogData } from '../newGameDialog';
 function Header() {
 	const dispatch = useAppDispatch();
 	const isNewGameRequested = useAppSelector(selectIsNewGameRequested);
+
+	const newGameDialogInitialState: INewGameDialogData = {
+		whitePlayerName: useAppSelector(selectPlayerInfo(COLOR.WHITE)).name,
+		blackPlayerName: useAppSelector(selectPlayerInfo(COLOR.BLACK)).name,
+	};
 
 	const handleNewGameClick = () => {
 		dispatch(showNewGameRequest());
@@ -19,8 +26,7 @@ function Header() {
 
 	const handleSubmit = (data: INewGameDialogData) => {
 		const { blackPlayerName, whitePlayerName } = data;
-		dispatch(resetGame({ blackPlayerName, whitePlayerName }));
-		console.log('Board reset');
+		dispatch(startNewGame({ blackPlayerName, whitePlayerName }));
 		dispatch(resetBoard());
 	};
 
@@ -34,7 +40,13 @@ function Header() {
 					</Button>
 				</div>
 			</header>
-			{isNewGameRequested && <NewGameDialog onCancel={handleCancel} onSubmit={handleSubmit} />}
+			{isNewGameRequested && (
+				<NewGameDialog
+					onCancel={handleCancel}
+					onSubmit={handleSubmit}
+					initialState={newGameDialogInitialState}
+				/>
+			)}
 		</>
 	);
 }

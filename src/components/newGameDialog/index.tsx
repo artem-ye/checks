@@ -14,10 +14,14 @@ export interface INewGameDialogData {
 type TNewGameDialogProps = {
 	onCancel: () => void;
 	onSubmit: (data: INewGameDialogData) => void;
+	initialState: INewGameDialogData;
 };
 
-const NewGameDialog = ({ onCancel, onSubmit }: TNewGameDialogProps) => {
-	const [data, setData] = useState({ whitePlayerName: '', blackPlayerName: '' });
+const NewGameDialog = ({ onCancel, onSubmit, initialState }: TNewGameDialogProps) => {
+	const [data, setData] = useState({
+		whitePlayerName: initialState.whitePlayerName,
+		blackPlayerName: initialState.blackPlayerName,
+	});
 
 	const handleDataChange = (data: IHandleChangeProps) => {
 		setData((prev) => {
